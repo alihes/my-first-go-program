@@ -10,7 +10,7 @@
 <body>
   <main>
     <header>
-      <a class="logo" href="/">my first web {{ .var1 }}</a>
+      <a class="logo" href="/">my first web {{ .Var1 }}</a>
       <form class="button" action="/incr" method="GET">
         <input type="submit" value="  +  "/>
       </form>
@@ -35,7 +35,6 @@
       <ul class="search-results"> 
         {{ range.Results.Articles }}
         <li class="news-article">
-          <a>meow</a>
           <div>
             <a target="_blank" rel="noreferrer noopener" href="{{.URL}}">
               <h3 class="title">{{.Title}}</h3>

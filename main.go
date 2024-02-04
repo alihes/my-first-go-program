@@ -21,6 +21,7 @@ var tpl = template.Must(template.ParseFiles("index.html"))
 var newsapi *news.Client
 
 type Search struct {
+	Var1	   int
 	Query      string
 	NextPage   int
 	TotalPages int
@@ -30,7 +31,7 @@ type Search struct {
 func incr(w http.ResponseWriter, r *http.Request) {
 	test++
 	a := map[string]interface{}{
-        "var1": test,
+        "Var1": test,
     }
 	buf := &bytes.Buffer{}
 	err := tpl.Execute(buf, a)
@@ -43,7 +44,7 @@ func incr(w http.ResponseWriter, r *http.Request) {
 func decr(w http.ResponseWriter, r *http.Request) {
 	test--
 	a := map[string]interface{}{
-        "var1": test,
+        "Var1": test,
     }
 	buf := &bytes.Buffer{}
 	err := tpl.Execute(buf, a)
@@ -60,7 +61,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// w.Write([]byte("<h1>Hello World! hmm</h1>"))
 	// tpl.Execute(w, nil)
 	a := map[string]interface{}{
-        "var1": test,
+        "Var1": test,
     }
 	buf := &bytes.Buffer{}
 	err := tpl.Execute(buf, a)
@@ -106,19 +107,16 @@ func searchHandler(newsapi *news.Client) http.HandlerFunc {
 		}
 
 		search := &Search{
+			Var1: test,
 			Query:      searchQuery,
 			NextPage:   nextPage,
 			TotalPages: int(math.Ceil(float64(results.TotalResults) / float64(newsapi.PageSize))),
 			Results:    results,
 		}
 
-		a := map[string]interface{}{
-			"search": search,
-			"var1": test,
-		}	
 
 		buf := &bytes.Buffer{}
-		err = tpl.Execute(buf, a)
+		err = tpl.Execute(buf, search)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
