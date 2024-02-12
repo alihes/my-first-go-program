@@ -11,11 +11,11 @@
   <main>
     <header>
       <a class="logo" href="/">my first web {{ .Var1 }}</a>
-      <form class="button" action="/incr" method="GET">
-        <input type="submit" value="  +  "/>
+      <form action="/incr" method="GET">
+        <input class="button" type="submit" value=" + "/>
       </form>
-      <form action="/decr" method="GET">
-        <input class="button" type="submit" value="  -  "/>
+      <form action="/decr" method="GET" >
+        <input class="button" type="submit" value=" - "/>
       </form>
       <form action="/search" method="GET">
         <input
