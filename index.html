@@ -32,6 +32,20 @@
         >my github</a>
     </header>
     <section class="container">
+      <div class="result-count">
+        {{ if .Results }}
+          {{if (gt .Results.TotalResults 0)}}
+          <p>
+            About <strong>{{ .Results.TotalResults }}</strong> results were
+            found. You are on page <strong>{{ .CurrentPage }}</strong> of
+            <strong> {{ .TotalPages }}</strong
+            >.
+          </p>
+          {{ else if and (ne .Query "") (eq .Results.TotalResults 0)}}
+          <p>No results found for your query: <strong>{{ .Query }}</strong>.</p>
+          {{ end }}
+        {{ end }}
+      </div>
       <ul class="search-results"> 
         {{ range.Results.Articles }}
         <li class="news-article">
@@ -42,13 +56,31 @@
             <p class="description">{{ .Description }}</p>
             <div class="metadata">
               <p class="source">{{ .Source.Name  }}</p>
-              <time class="published-date">{{ .PublishedAt }}</time>
+              <time class="published-date">{{ .FormatPublishedDate }}</time>
             </div>
           </div>
           <img class="article-image" src="{{ .URLToImage }}" />
         </li>
         {{ end }}
       </ul>
+      <div class="pagination">
+        {{ if . }}
+          {{ if (gt .NextPage 2) }}
+          <a
+            href="/search?q={{ .Query }}&page={{ .PreviousPage }}"
+            class="button previous-page"
+            >Previous</a
+          >
+          {{ end }}
+          {{ if (ne .IsLastPage true) }}
+          <a
+            href="/search?q={{ .Query }}&page={{ .NextPage }}"
+            class="button next-page"
+            >Next</a
+          >
+          {{ end }}
+        {{ end }}
+        </div>
     </section>
   </main>
 </body>

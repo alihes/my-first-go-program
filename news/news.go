@@ -9,7 +9,6 @@ import (
 	"time"
 )
 
-
 type Article struct {
 	Source struct {
 		ID   interface{} `json:"id"`
@@ -30,21 +29,18 @@ type Results struct {
 	Articles     []Article `json:"articles"`
 }
 
-
-type Client struct{
-	http	 *http.Client
-	key		 string
+type Client struct {
+	http     *http.Client
+	key      string
 	PageSize int
 }
 
-
-func NewClient(httpClient *http.Client, key string, pageSize int) *Client{
+func NewClient(httpClient *http.Client, key string, pageSize int) *Client {
 	if pageSize > 100 {
-		pageSize = 100		
+		pageSize = 100
 	}
 	return &Client{httpClient, key, pageSize}
 }
-
 
 func (c *Client) FetchEverything(query, page string) (*Results, error) {
 	endpoint := fmt.Sprintf("https://newsapi.org/v2/everything?q=%s&pageSize=%d&page=%s&apiKey=%s&sortBy=publishedAt&language=fa", url.QueryEscape(query), c.PageSize, page, c.key)
@@ -66,4 +62,9 @@ func (c *Client) FetchEverything(query, page string) (*Results, error) {
 
 	res := &Results{}
 	return res, json.Unmarshal(body, res)
+}
+
+func (a *Article) FormatPublishedDate() string {
+	year, month, day := a.PublishedAt.Date()
+	return fmt.Sprintf(" %d , %v , %d,", year, month, day)
 }

@@ -16,11 +16,10 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var test int= 0
 var tpl = template.Must(template.ParseFiles("index.html"))
 var newsapi *news.Client
 
-type Search struct {
+type Data struct {
 	Var1	   int
 	Query      string
 	NextPage   int
@@ -28,13 +27,20 @@ type Search struct {
 	Results    *news.Results
 }
 
+var data = &Data{
+	Var1: 0,
+	Query:      "",
+	NextPage:   1,
+	TotalPages: 0,
+	Results:    &news.Results{},
+}
+
+
 func incr(w http.ResponseWriter, r *http.Request) {
-	test++
-	a := map[string]interface{}{
-        "Var1": test,
-    }
+	data.Var1++
+	
 	buf := &bytes.Buffer{}
-	err := tpl.Execute(buf, a)
+	err := tpl.Execute(buf, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -42,12 +48,9 @@ func incr(w http.ResponseWriter, r *http.Request) {
 	buf.WriteTo(w)
 }
 func decr(w http.ResponseWriter, r *http.Request) {
-	test--
-	a := map[string]interface{}{
-        "Var1": test,
-    }
+	data.Var1--
 	buf := &bytes.Buffer{}
-	err := tpl.Execute(buf, a)
+	err := tpl.Execute(buf, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -55,16 +58,25 @@ func decr(w http.ResponseWriter, r *http.Request) {
 
 	buf.WriteTo(w)
 }
-
+func (s *Data) IsLastPage() bool {
+	return s.NextPage >= s.TotalPages
+}
+func (s *Data) CurrentPage() int {
+	if s.NextPage == 1 {
+		return s.NextPage
+	}
+	return s.NextPage-1
+}
+func (s *Data) PreviousPage() int{
+	return s.CurrentPage()-1
+}
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// w.Write([]byte("<h1>Hello World! hmm</h1>"))
 	// tpl.Execute(w, nil)
-	a := map[string]interface{}{
-        "Var1": test,
-    }
+	
 	buf := &bytes.Buffer{}
-	err := tpl.Execute(buf, a)
+	err := tpl.Execute(buf, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -106,17 +118,21 @@ func searchHandler(newsapi *news.Client) http.HandlerFunc {
 			return
 		}
 
-		search := &Search{
-			Var1: test,
+		data = &Data{
+			Var1: 		data.Var1,
 			Query:      searchQuery,
 			NextPage:   nextPage,
 			TotalPages: int(math.Ceil(float64(results.TotalResults) / float64(newsapi.PageSize))),
 			Results:    results,
 		}
 
+		if ok := !data.IsLastPage();ok {
+			data.NextPage++
+		}
+
 
 		buf := &bytes.Buffer{}
-		err = tpl.Execute(buf, search)
+		err = tpl.Execute(buf, data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
