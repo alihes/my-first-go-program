@@ -1,4 +1,4 @@
-package ber
+package main
 
 import (
 	"bytes"
